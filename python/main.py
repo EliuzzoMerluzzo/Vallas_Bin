@@ -1,14 +1,12 @@
-import time
+import random
+from arduino.app_utils import *
 
-from arduino.app_utils import App
-
-print("Hello world!")
+print("PYTHON_START")
 
 
 def loop():
-    """This function is called repeatedly by the App framework."""
-    # You can replace this with any code you want your App to run repeatedly.
-    time.sleep(10)
+    while True:
+        Bridge.call("write_ultrasound", 3, random.randint(0, 256))
 
 
 # See: https://docs.arduino.cc/software/app-lab/tutorials/getting-started/#app-run
