@@ -1,5 +1,7 @@
 name: Cestino
 description: ""
 ports: []
-bricks: []
+bricks:
+- arduino:llm:
+    model: llamacpp:gemma-3-1b-it-Q4_0
 icon: 💻

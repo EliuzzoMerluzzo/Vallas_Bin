@@ -1,11 +1,11 @@
-import time
-from arduino.app_utils import *
+from arduino.app_utils import App
+from db import Bins
 
 def loop():
     pass
 
-def send_ultrasound():
-    ultrasound = 
+    
 
-
+# send_fullness()
+# Bins.GetBins()
 App.run(user_loop=loop)
