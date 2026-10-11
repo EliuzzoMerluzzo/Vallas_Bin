@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Monitoraggio cestini</title>
+<style>
+  :root { --bg:#f4f6f8; --card:#fff; --testo:#1d2733; --muted:#6b7785; --traccia:#e3e8ee; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#12171d; --card:#1b222b; --testo:#e8edf2; --muted:#8c99a8; --traccia:#2b3541; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:24px; background:var(--bg); color:var(--testo);
+         font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { max-width:1100px; margin:0 auto 20px; display:flex;
+           justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:8px; }
+  h1 { margin:0; font-size:1.5rem; }
+  #stato { color:var(--muted); font-size:.85rem; }
+  #griglia { max-width:1100px; margin:0 auto; display:grid; gap:16px;
+             grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+  .card { background:var(--card); border-radius:14px; padding:18px;
+          box-shadow:0 1px 3px rgba(0,0,0,.12); }
+  .zona { font-weight:600; font-size:1.05rem; }
+  .id { color:var(--muted); font-size:.8rem; }
+  .valore { font-size:2.4rem; font-weight:700; margin:12px 0 8px; }
+  .barra { height:10px; border-radius:6px; background:var(--traccia); overflow:hidden; }
+  .riempi { height:100%; border-radius:6px; transition:width .4s; }
+  .tempo { margin-top:10px; color:var(--muted); font-size:.8rem; }
+  .verde  { color:#1f9d55; } .verde  .riempi { background:#1f9d55; }
+  .giallo { color:#d9a000; } .giallo .riempi { background:#e0a800; }
+  .rosso  { color:#d93a3a; } .rosso  .riempi { background:#d93a3a; }
+  .nd     { color:var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <h1>🗑️ Stato cestini</h1>
+  <span id="stato">Caricamento...</span>
+</header>
+<div id="griglia"></div>
+
+<script>
+function classe(p) {
+  if (p === null) return "nd";
+  if (p >= 80) return "rosso";
+  if (p >= 50) return "giallo";
+  return "verde";
+}
+
+function crea(tag, cls, testo) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (testo !== undefined) e.textContent = testo;
+  return e;
+}
+
+async function carica() {
+  try {
+    const dati = await (await fetch("/api/cestini")).json();
+    const griglia = document.getElementById("griglia");
+    griglia.replaceChildren();
+
+    for (const c of dati) {
+      const card = crea("div", "card " + classe(c.capacita));
+      card.append(crea("div", "zona", c.zona), crea("div", "id", "Cestino #" + c.id));
+      card.append(crea("div", "valore", c.capacita === null ? "N/D" : c.capacita + "%"));
+
+      const barra = crea("div", "barra");
+      const riempi = crea("div", "riempi");
+      riempi.style.width = (c.capacita || 0) + "%";
+      barra.append(riempi);
+      card.append(barra);
+
+      card.append(crea("div", "tempo", c.tempo ? "Ultimo dato: " + c.tempo : "Nessuna registrazione"));
+      griglia.append(card);
+    }
+    document.getElementById("stato").textContent =
+      "Aggiornato alle " + new Date().toLocaleTimeString("it-IT");
+  } catch (e) {
+    document.getElementById("stato").textContent = "Errore nel caricamento dei dati";
+  }
+}
+
+carica();
+setInterval(carica, 10000);  // aggiorna ogni 10 secondi
+</script>
+</body>
+</html>
