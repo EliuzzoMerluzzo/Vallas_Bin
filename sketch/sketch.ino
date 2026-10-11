@@ -2,18 +2,26 @@
 #include <Arduino_RouterBridge.h>
 
 void setup() {
-  pinMode(3, OUTPUT);
+  pinMode(SERVO_1, OUTPUT);
+  pinMode(SERVO_2, OUTPUT);
+  pinMode(ULTRASOUND_TRIGGER, INPUT);
+  pinMode(ULTRASOUND_ECHO, OUTPUT);
   Bridge.begin();
-  Bridge.provide("read_ultrasound", read_ultrasound);
-  Bridge.provide("write_ultrasound", write_ultrasound);
+  Bridge.provide("read_ultrasound", trigger);
+  Bridge.provide("write_ultrasound", echo);
+  Bridge.provide("servo", servo);
 }
 
-void write_ultrasound(uint8_t pin, uint8_t value){
-  analogWrite(pin, value);
+void servo(uint8_t servo, uint8_t value){
+  analogWrite(servo == 1 ? SERVO_1: SERVO_2, value);
 }
 
-int read_ultrasound(uint8_t pin){
-  return analogRead(pin);
+void echo(uint8_t value){
+  analogWrite(ULTRASOUND_ECHO, value);
+}
+
+int trigger(){
+  return analogRead(ULTRASOUND_TRIGGER);
 }
 
 void loop() {
